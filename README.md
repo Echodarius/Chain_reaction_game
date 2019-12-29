@@ -1,11 +1,12 @@
 # Chain Reaction Framework
 
-Readme url: [Readme](https://gitlab.com/tzuyangw/chain-reaction-framework/blob/master/README.md)
+Readme url: [Readme](https://github.com/Echodarius/Chain_reaction_game/edit/master/README.md)
+TA's readme url: [TA's Readme](https://gitlab.com/tzuyangw/chain-reaction-framework/blob/master/README.md)
 The spec document: [Demand](https://gitlab.com/tzuyangw/chain-reaction-framework/blob/master/Demand.pdf)
 
-# A very simple framework of chain reaction using C++ language. 
-
-Apply the knowledge learned form the course of data structure and implement a competitive algorithm for the Critical Mass game.
+# A project homework of Data Structure written by C++ language.
+The framework is applyed by TA, I need to implement an AI bot to defeat TA's bot.
+My work are Minimax.cpp, algorithm_A.cpp, QuickSort.cpp, the other codes are TA's.
 
 ## Compile Command:
 * $g++ chain_reaction.cpp board.cpp rules.cpp player.cpp algorithm_A.cpp algorithm_TA.cpp
@@ -13,7 +14,7 @@ Apply the knowledge learned form the course of data structure and implement a co
 ## Execution: 
 * Execute the output file(Mac: a.out, Windows: a.exe)
 
-## Some simple actions that can make your development easier 
+## Description 
 
 ### Main program
 
@@ -31,15 +32,12 @@ Apply the knowledge learned form the course of data structure and implement a co
 
 ### Algorithm_A
 
-*  The algorithm_A.cpp file is where you need to impliment your algorithm.
-*  All the constrains and support funcitons is commented in the file, please check the [algorithm_A.cpp](/source/algorithm_A.cpp) for more information.
+* Implement Minimax strategy for the bot.
 
-### Submit
+### Minimax
+* The heuristic strategy is from [Brilliant](https://brilliant.org/wiki/chain-reaction-game/)
 
-*  All you need to do is complete the algorithm_A.cpp with correct return format.
-*  Any other modifies "will not" be compiled in TA's computer.(except algorithm_A.cpp)
-*  But we do not restrict you from modifying any part of the framwork. You can do whatever you want to speed up your developement.
-
-### Something you might want to know
-
-*  system("pause")
+### QuickSort
+* Partition : 3-way partition
+* Pivot: Median of three
+* descending order
