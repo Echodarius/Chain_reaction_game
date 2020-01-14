@@ -27,7 +27,7 @@ using namespace std;
 *************************************************************************/
 
 int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-int corner[4][2] = {{0, 0}, {0, COL}, {ROW, 0}, {ROW, COL}};
+int corner[4][2] = {{0, 0}, {0, COL-1}, {ROW-1, 0}, {ROW-1, COL-1}};
 Player opponent(Board board, Player me);
 int evaluate_board(Board board, char my_color, char enemy_color);
 int **get_legal_moves(Board board, char player_color, int &move_number);
@@ -39,8 +39,8 @@ void algorithm_A(Board board, Player player, int index[])
 
     Player enemy = opponent(board, player);
     Minimax(board, true, player, enemy, index, 0, -10000, 10000);
-
-    cout << "I put at (" << index[0] << "," << index[1] << ")" << endl;
+    
+    cout << player.get_color() << " put at (" << index[0] << "," << index[1] << ")" << endl;
     cin.get();
 }
 
@@ -216,7 +216,7 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
         }
     }
 
-    if (depth == 1 || best_score == 10000 || best_score == -10000)
+    if (depth == 3 || best_score == 10000 || best_score == -10000)
     {
         return best_score;
     }
@@ -235,25 +235,24 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
         {
             cur_board = psuedo_place_orb(board, me, legal[i][0], legal[i][1]);
             int score = Minimax(cur_board, false, me, enemy, index, depth + 1, alpha, beta);
-            cout << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
-            if (best_score < score)
+            //cout << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
+            best_score = max(best_score, score);
+            index[0] = legal[i][0];
+            index[1] = legal[i][1];
+            alpha = max(best_score, alpha);
+            if (beta <= alpha)
             {
-                //cout << "b<s, "
-                //     << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
-                best_score = score;
-                index[0] = legal[i][0];
-                index[1] = legal[i][1];
-                alpha = max(score, alpha);
-                if (beta <= alpha)
-                {
-                    break;
-                }
+                //cout << "maximizer, ";
+                //cout << "depth = " << depth;
+                //cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
+                break;
             }
         }
-    } //minimizer, enemy turn
+    }
+    //minimizer, enemy turn
     else
     {
-        //cout << "minimizer" << endl;
+        //cout << "minimizer turn" << endl;
         //cout << "best_score = " << best_score << endl;
         legal = get_legal_moves(board, enemy.get_color(), legal_move_number);
         for (int i = 0; i < legal_move_number; ++i)
@@ -261,21 +260,32 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
             cur_board = psuedo_place_orb(board, enemy, legal[i][0], legal[i][1]);
             int score = Minimax(cur_board, true, me, enemy, index, depth + 1, alpha, beta);
             //cout << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
-            if (best_score >= score)
+            best_score = min(best_score, score);
+            index[0] = legal[i][0];
+            index[1] = legal[i][1];
+            beta = min(best_score, beta);
+            if (beta <= alpha)
             {
-                //cout << "b>s "
-                //     << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
-                best_score = score;
-                index[0] = legal[i][0];
-                index[1] = legal[i][1];
-                beta = min(score, beta);
-                if (beta <= alpha)
-                {
-                    break;
-                }
+                //cout << "minimizer, ";
+                //cout << "depth = " << depth;
+                //cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
+                break;
             }
         }
     }
+    /*
+    if(depth == 1)
+    {
+        cout << "depth = " << depth;
+        cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
+    }
+    if (depth == 0)
+    {
+        cout << "depth = " << depth;
+        cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
+    }
+    */
+    
     return best_score;
 }
 //g++ algorithm_A.cpp algorithm_TA.cpp player.cpp rules.cpp board.cpp chain_reaction.cpp gameTree.cpp
