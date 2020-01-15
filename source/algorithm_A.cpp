@@ -14,10 +14,13 @@ int **get_legal_moves(Board board, char player_color, int &move_number);
 int Minimax(Board board, bool maximizer, Player me, Player enemy,
             int index[], int depth, int alpha, int beta);
 
+int Minimax_version2(Board board, bool maximizer, Player me, Player enemy,
+            int index[], int depth, int alpha, int beta);
+
 void algorithm_A(Board board, Player player, int index[])
 {
     Player enemy = opponent(board, player);
-    Minimax(board, true, player, enemy, index, 0, -10000, 10000);
+    Minimax_version2(board, true, player, enemy, index, 0, -10000, 10000);
     cin.get();
 }
 
@@ -228,6 +231,112 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
         {
             cur_board = psuedo_place_orb(board, enemy, legal[i][0], legal[i][1]);
             int score = Minimax(cur_board, true, me, enemy, index, depth + 1, alpha, beta);
+            best_score = min(best_score, score);
+            index[0] = legal[i][0];
+            index[1] = legal[i][1];
+            beta = min(best_score, beta);
+            if (beta <= alpha)
+            {
+                break;
+            }
+        }
+    }
+    return best_score;
+}
+
+int Minimax_version2(Board board, bool maximizer, Player me, Player enemy,
+                     int index[], int depth, int alpha, int beta)
+{
+
+    int best_score = evaluate_board(board, me.get_color(), enemy.get_color());
+
+    if (depth == 0 && (best_score == -10000 || best_score == 0))
+    {
+        //get corner
+        for (int i = 0; i < 4; ++i)
+        {
+            if (board.get_cell_color(corner[i][0], corner[i][1]) == 'w')
+            {
+                index[0] = corner[i][0];
+                index[1] = corner[i][1];
+                return 0;
+            }
+        }
+    }
+
+    if (depth == 3 || best_score == 10000 || best_score == -10000)
+    {
+        return best_score;
+    }
+
+    int legal_move_number = 0;
+    int **legal;
+    Board cur_board;
+
+    //Maximizer turn = my turn
+    if (maximizer)
+    {
+        legal = get_legal_moves(board, me.get_color(), legal_move_number);
+
+        if (depth == 0 && legal_move_number > 27)
+        {
+            if (board.get_capacity(index[0], index[1]) != board.get_orbs_num(index[0], index[1]) + 1)
+            {
+                //cout << "get corner " << endl;
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (board.get_cell_color(corner[i][0], corner[i][1]) == 'w')
+                    {
+                        index[0] = corner[i][0];
+                        index[1] = corner[i][1];
+                        return best_score;
+                    }
+                }
+            }
+            else
+            {
+                int nb_row, nb_col;
+                for (int k = 0; k < 4; ++k)
+                {
+                    nb_row = index[0] + dirs[k][0];
+                    nb_col = index[1] + dirs[k][1];
+                    if (0 <= nb_row && nb_row < ROW &&
+                        0 <= nb_col && nb_col < COL)
+                    {
+                        if (board.get_cell_color(nb_row, nb_col) == me.get_color() &&
+                            board.get_capacity(nb_row, nb_col) == board.get_orbs_num(nb_row, nb_col) + 1)
+                        {
+                            index[0] = nb_row;
+                            index[1] = nb_col;
+                            return best_score;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < legal_move_number; ++i)
+        {
+            cur_board = psuedo_place_orb(board, me, legal[i][0], legal[i][1]);
+            int score = Minimax_version2(cur_board, false, me, enemy, index, depth + 1, alpha, beta);
+            best_score = max(best_score, score);
+            index[0] = legal[i][0];
+            index[1] = legal[i][1];
+            alpha = max(best_score, alpha);
+            if (beta <= alpha)
+            {
+                break;
+            }
+        }
+    }
+    //minimizer, enemy turn
+    else
+    {
+        legal = get_legal_moves(board, enemy.get_color(), legal_move_number);
+        for (int i = 0; i < legal_move_number; ++i)
+        {
+            cur_board = psuedo_place_orb(board, enemy, legal[i][0], legal[i][1]);
+            int score = Minimax_version2(cur_board, true, me, enemy, index, depth + 1, alpha, beta);
             best_score = min(best_score, score);
             index[0] = legal[i][0];
             index[1] = legal[i][1];
