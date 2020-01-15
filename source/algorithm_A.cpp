@@ -2,33 +2,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../include/algorithm.h"
-#include "../include/player.h"
 
 using namespace std;
 
-/******************************************************
- * In your algorithm, you can just use the the funcitons
- * listed by TA to get the board information.(functions 
- * 1. ~ 4. are listed in next block)
- * 
- * The STL library functions is not allowed to use.
-******************************************************/
-
-/*************************************************************************
- * 1. int board.get_orbs_num(int row_index, int col_index)
- * 2. int board.get_capacity(int row_index, int col_index)
- * 3. char board.get_cell_color(int row_index, int col_index)
- * 4. void board.print_current_board(int row_index, int col_index, int round)
- * 
- * 1. The function that return the number of orbs in cell(row, col)
- * 2. The function that return the orb capacity of the cell(row, col)
- * 3. The function that return the color fo the cell(row, col)
- * 4. The function that print out the current board statement
-*************************************************************************/
-
 int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-int corner[4][2] = {{0, 0}, {0, COL-1}, {ROW-1, 0}, {ROW-1, COL-1}};
+int corner[4][2] = {{0, 0}, {0, COL - 1}, {ROW - 1, 0}, {ROW - 1, COL - 1}};
 Player opponent(Board board, Player me);
+Board psuedo_place_orb(Board board, Player &player, int i, int j);
 int evaluate_board(Board board, char my_color, char enemy_color);
 int **get_legal_moves(Board board, char player_color, int &move_number);
 int Minimax(Board board, bool maximizer, Player me, Player enemy,
@@ -36,11 +16,8 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
 
 void algorithm_A(Board board, Player player, int index[])
 {
-
     Player enemy = opponent(board, player);
     Minimax(board, true, player, enemy, index, 0, -10000, 10000);
-    
-    cout << player.get_color() << " put at (" << index[0] << "," << index[1] << ")" << endl;
     cin.get();
 }
 
@@ -73,8 +50,8 @@ int evaluate_board(Board board, char my_color, char enemy_color)
     int sc = 0;
     int my_cell = 0, enemy_cell = 0;
     int nb_row = 0, nb_col = 0;
-    int player_critical_cell = 0;
-    int player_n_cont_cri_cell = 0; //my not contiguous critial cell
+    int my_critical_cell = 0;
+    int my_n_cont_cri_cell = 0; //my not contiguous critial cell
 
     for (int i = 0; i < ROW; ++i)
     {
@@ -112,7 +89,7 @@ int evaluate_board(Board board, char my_color, char enemy_color)
                 }
                 if (board.get_capacity(i, j) == board.get_orbs_num(i, j) + 1)
                 {
-                    ++player_critical_cell;
+                    ++my_critical_cell;
                     bool contiguous = false;
                     for (int k = 0; k < 4; ++k)
                     {
@@ -128,11 +105,11 @@ int evaluate_board(Board board, char my_color, char enemy_color)
                     }
                     if (contiguous == false)
                     {
-                        ++player_n_cont_cri_cell;
+                        ++my_n_cont_cri_cell;
                     }
                 }
             }
-            else
+            else if (board.get_cell_color(i, j) == enemy_color)
             {
                 enemy_cell += 1;
             }
@@ -143,7 +120,7 @@ int evaluate_board(Board board, char my_color, char enemy_color)
         return 10000;
     if (my_cell == 0 && enemy_cell > 1)
         return -10000;
-    sc += 2 * (player_critical_cell - player_n_cont_cri_cell);
+    sc += 2 * (my_critical_cell - my_n_cont_cri_cell);
     return sc;
 }
 
@@ -202,12 +179,12 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
 
     int best_score = evaluate_board(board, me.get_color(), enemy.get_color());
 
-    if(depth == 0 && (best_score == -10000 || best_score == 0))
+    if (depth == 0 && (best_score == -10000 || best_score == 0))
     {
         //get corner
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
-            if(board.get_cell_color(corner[i][0],corner[i][1]) == 'w' )
+            if (board.get_cell_color(corner[i][0], corner[i][1]) == 'w')
             {
                 index[0] = corner[i][0];
                 index[1] = corner[i][1];
@@ -228,23 +205,17 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
     //Maximizer turn = my turn
     if (maximizer)
     {
-        //cout << "maximizer turn" << endl;
         legal = get_legal_moves(board, me.get_color(), legal_move_number);
-        //cout << "best_score = " << best_score << endl;
         for (int i = 0; i < legal_move_number; ++i)
         {
             cur_board = psuedo_place_orb(board, me, legal[i][0], legal[i][1]);
             int score = Minimax(cur_board, false, me, enemy, index, depth + 1, alpha, beta);
-            //cout << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
             best_score = max(best_score, score);
             index[0] = legal[i][0];
             index[1] = legal[i][1];
             alpha = max(best_score, alpha);
             if (beta <= alpha)
             {
-                //cout << "maximizer, ";
-                //cout << "depth = " << depth;
-                //cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
                 break;
             }
         }
@@ -252,40 +223,20 @@ int Minimax(Board board, bool maximizer, Player me, Player enemy,
     //minimizer, enemy turn
     else
     {
-        //cout << "minimizer turn" << endl;
-        //cout << "best_score = " << best_score << endl;
         legal = get_legal_moves(board, enemy.get_color(), legal_move_number);
         for (int i = 0; i < legal_move_number; ++i)
         {
             cur_board = psuedo_place_orb(board, enemy, legal[i][0], legal[i][1]);
             int score = Minimax(cur_board, true, me, enemy, index, depth + 1, alpha, beta);
-            //cout << "x= " << legal[i][0] << ", y=" << legal[i][1] << ", score =" << score << endl;
             best_score = min(best_score, score);
             index[0] = legal[i][0];
             index[1] = legal[i][1];
             beta = min(best_score, beta);
             if (beta <= alpha)
             {
-                //cout << "minimizer, ";
-                //cout << "depth = " << depth;
-                //cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
                 break;
             }
         }
     }
-    /*
-    if(depth == 1)
-    {
-        cout << "depth = " << depth;
-        cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
-    }
-    if (depth == 0)
-    {
-        cout << "depth = " << depth;
-        cout << ", (alpha,beta) = (" << alpha << ',' << beta << ')'<< endl;
-    }
-    */
-    
     return best_score;
 }
-//g++ algorithm_A.cpp algorithm_TA.cpp player.cpp rules.cpp board.cpp chain_reaction.cpp gameTree.cpp
