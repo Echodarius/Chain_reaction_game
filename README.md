@@ -7,6 +7,7 @@ The spec document: [Demand](https://gitlab.com/tzuyangw/chain-reaction-framework
 # A project homework of Data Structure written by C++ language.
 The framework is applyed by TA, I need to implement an AI bot to defeat TA's bot.
 My work are Minimax.cpp, algorithm_A.cpp, QuickSort.cpp, the other codes are TA's.
+Actually, Quicksort is not needed.
 
 ## Compile Command:
 * $g++ chain_reaction.cpp board.cpp rules.cpp player.cpp algorithm_A.cpp algorithm_TA.cpp
@@ -15,6 +16,15 @@ My work are Minimax.cpp, algorithm_A.cpp, QuickSort.cpp, the other codes are TA'
 * Execute the output file(Mac: a.out, Windows: a.exe)
 
 ## Description 
+
+* The Flowchart of heuristic strategy in algorithm_A.cpp
+
+![Heuristic Flowchart](/images/Evaluate_board.jpg)
+
+* The Flowchart of "Minimax" function in algorithm_A.cpp
+
+![Minimax](/images/Minimax.jpg)
+
 
 ### Main program
 
@@ -35,7 +45,7 @@ My work are Minimax.cpp, algorithm_A.cpp, QuickSort.cpp, the other codes are TA'
 * Implement Minimax strategy for the bot.
 
 ### Minimax
-* The heuristic strategy is from [Brilliant](https://brilliant.org/wiki/chain-reaction-game/)
+* The heuristic strategy is modified from [Brilliant](https://brilliant.org/wiki/chain-reaction-game/)
 
 ### QuickSort
 * Partition : 3-way partition
